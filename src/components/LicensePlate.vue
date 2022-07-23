@@ -60,7 +60,12 @@
                 </div>
         </div>
         <div class="flex justify-center mt-5 h-10">
-            <StarsScore :stars="stars"/>
+            <GameModal :show="showResult" @close="showResult = false">
+                <StarsScore :stars="stars"/>
+                <div>
+                    {{ $t('messages.score') }}: {{ context.correctGuesses }}
+                </div>
+            </GameModal>
         </div>
         <div v-show="current.matches('finished')">
             <details open class="text-gray-300 text-sm">
@@ -134,6 +139,7 @@ import {licensePlateMachine} from './LicensePlateMachine.js';
 import {interpret} from 'xstate';
 import BadgePill from './BadgePill.vue';
 import StarsScore from './StarsScore.vue';
+import GameModal from './GameModal.vue';
 import {Howl} from 'howler';
 import timesUpAudio from '../assets/audio/times_up_AT_0063.WAV?url';
 
@@ -145,6 +151,7 @@ export default {
         AppButton,
         ProgressBar,
         StarsScore,
+        GameModal,
     },
     data() {
         return {
@@ -154,6 +161,7 @@ export default {
             debug: false,
             stars: null,
             timer: null,
+            showResult: false,
             history: {
                 latestScores: [],
                 bestScore: null,
@@ -202,6 +210,7 @@ export default {
                 if (this.history.timesPlayed % 4 === 0) {
                     this.playTimesUpAudio();
                 }
+                this.showResult = true;
                 this.giveStarsScore();
             }
         },
@@ -240,15 +249,17 @@ export default {
         },
         giveStarsScore() {
             let score = this.context.correctGuesses;
-            if (score > 8) {
-                this.stars = 3;
-            } else if (score > 5) {
-                this.stars = 2;
-            } else if (score > 2) {
-                this.stars = 1;
-            } else {
-                this.stars = 0;
-            }
+            this.$nextTick(() => {
+                if (score > 8) {
+                    this.stars = 3;
+                } else if (score > 5) {
+                    this.stars = 2;
+                } else if (score > 2) {
+                    this.stars = 1;
+                } else {
+                    this.stars = 2;
+                }
+            })
         },
         saveScores() {
             this.history.latestScores.unshift({

@@ -7,6 +7,8 @@ export const lang = {
             latest_scores: 'Latest scores',
             best_score: 'Best score',
             results: 'Results',
+            close: 'Close',
+            score: 'Score',
         }
     }
 };
