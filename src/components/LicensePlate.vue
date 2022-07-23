@@ -28,7 +28,7 @@
             </div>
             <div class="flex justify-center mt-3">
                 <div class="w-1/2 lg:w-1/3 h-2.5" >
-                    <div class="flex space-x-1">
+                    <div class="flex flex-wrap space-x-1">
                         <div v-for="(guess, index ) in context.history" :class="{'pr-2': (index+1) % 5 === 0}">
                             <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess.isCorrect,'bg-red-500':!guess.isCorrect}" aria-hidden="true"></div>
                         </div>
