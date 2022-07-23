@@ -61,7 +61,9 @@
         </div>
         <div class="flex justify-center mt-5 h-10">
             <GameModal :show="showResult" @close="showResult = false">
-                <StarsScore :stars="stars"/>
+                <template v-slot:stars>
+                    <StarsScore :stars="stars"/>
+                </template>
                 <div>
                     {{ $t('messages.score') }}: {{ context.correctGuesses }}
                 </div>
