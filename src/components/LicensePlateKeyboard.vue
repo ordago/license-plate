@@ -46,7 +46,6 @@ export default {
     },
     methods: {
         onKeyPress(button) {
-            console.log('button -> ', button);
             this.$emit('guess', button);
         },
     },

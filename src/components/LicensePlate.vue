@@ -45,43 +45,22 @@
                         @click="startGame()"
                         type="button"
                         element="button"
-                        :class="{ invisible: !current.matches('ready') }"
+                        v-if="current.matches('ready')"
                     >
                         {{ $t('messages.start') }}
-                    </AppButton>
-                    <AppButton v-show="false"
-                        @click="newGuess()"
-                        type="button"
-                        element="button"
-                        :disabled="![{ playing: 'hit' }, { playing: 'miss' }].some(current.matches)"
-                    >
-                        <span class="sr-only">
-                            {{ $tc('messages.other', 2) }}
-                        </span>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            stroke-width="2"
-                            stroke="currentColor"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                        >
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M4.05 11a8 8 0 1 1 .5 4m-.5 5v-5h5"></path>
-                        </svg>
                     </AppButton>
                     <AppButton
                         @click="restartGame()"
                         type="button"
                         element="button"
-                        :class="{ invisible: !current.matches('finished') }"
+                        v-if="current.matches('finished')"
                     >
                         {{ $t('messages.restart') }}
                     </AppButton>
                 </div>
+        </div>
+        <div class="flex justify-center mt-5 h-10">
+            <StarsScore :stars="stars"/>
         </div>
         <div v-show="current.matches('finished')">
             <details open class="text-gray-300 text-sm">
@@ -154,6 +133,7 @@ import ProgressBar from './ProgressBar.vue';
 import {licensePlateMachine} from './LicensePlateMachine.js';
 import {interpret} from 'xstate';
 import BadgePill from './BadgePill.vue';
+import StarsScore from './StarsScore.vue';
 import {Howl} from 'howler';
 import timesUpAudio from '../assets/audio/times_up_AT_0063.WAV?url';
 
@@ -164,6 +144,7 @@ export default {
         LicensePlateKeyboard,
         AppButton,
         ProgressBar,
+        StarsScore,
     },
     data() {
         return {
@@ -171,6 +152,7 @@ export default {
             time: 30,
             maxTime: 30,
             debug: false,
+            stars: null,
             timer: null,
             history: {
                 latestScores: [],
@@ -220,6 +202,7 @@ export default {
                 if (this.history.timesPlayed % 4 === 0) {
                     this.playTimesUpAudio();
                 }
+                this.giveStarsScore();
             }
         },
         time: function (seconds) {
@@ -252,7 +235,20 @@ export default {
         },
         restartGame() {
             this.time = 30;
+            this.stars = null;
             this.gameService.send('RESTART');
+        },
+        giveStarsScore() {
+            let score = this.context.correctGuesses;
+            if (score > 8) {
+                this.stars = 3;
+            } else if (score > 5) {
+                this.stars = 2;
+            } else if (score > 2) {
+                this.stars = 1;
+            } else {
+                this.stars = 0;
+            }
         },
         saveScores() {
             this.history.latestScores.unshift({
@@ -277,7 +273,11 @@ export default {
     mounted() {
         let value = localStorage.getItem('license_plate_game_scores');
         if (value) {
-            this.history = JSON.parse(value);
+            let history = JSON.parse(value);
+            if (Number.isNaN(history.timesPlayed)) {
+                history.timesPlayed = 0;
+            }
+            this.history = history;
         }
     }
 };
