@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "howler": "^2.2.3",
     "lodash": "^4.17.21",
     "simple-keyboard": "^3.4.128",
     "vue": "^3.2.25",

@@ -154,6 +154,8 @@ import ProgressBar from './ProgressBar.vue';
 import {licensePlateMachine} from './LicensePlateMachine.js';
 import {interpret} from 'xstate';
 import BadgePill from './BadgePill.vue';
+import {Howl} from 'howler';
+import timesUpAudio from '../assets/audio/times_up_AT_0063.WAV?url';
 
 export default {
     name: 'LicensePlate',
@@ -173,6 +175,7 @@ export default {
             history: {
                 latestScores: [],
                 bestScore: null,
+                timesPlayed: 0,
             },
             // Interpret the machine and store it in data
             gameService: interpret(licensePlateMachine),
@@ -214,6 +217,9 @@ export default {
         'current.value': function (state) {
             if (state === 'finished') {
                 this.saveScores();
+                if (this.history.timesPlayed % 4 === 0) {
+                    this.playTimesUpAudio();
+                }
             }
         },
         time: function (seconds) {
@@ -225,6 +231,11 @@ export default {
 
     },
     methods: {
+        playTimesUpAudio() {
+            new Howl({
+                src: [timesUpAudio]
+            }).play();
+        },
         handleGuess(button) {
             this.gameService.send('GUESS', { value: button });
         },
@@ -259,6 +270,7 @@ export default {
             }
 
             this.history.latestScores = this.history.latestScores.slice(0, 9);
+            this.history.timesPlayed++;
             localStorage.setItem('license_plate_game_scores', JSON.stringify(this.history));
         }
     },
