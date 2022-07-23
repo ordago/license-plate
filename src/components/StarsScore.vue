@@ -1,5 +1,5 @@
 <template>
-    <div class="w-40">
+    <div class="w-40 px-5">
         <TransitionGroup name="list" tag="div" class="flex"
                          enter-active-class="transition ease-out duration-500 transform"
                          enter-from-class="opacity-0 scale-95"
@@ -34,7 +34,6 @@ export default {
             } else {
                 for (let i = 0; i < 3; i++) {
                     setTimeout(() => {
-                        console.log(i);
                         return this.starsShown++;
                     }, i*750)
                 }
