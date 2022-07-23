@@ -16,15 +16,29 @@
         </TransitionGroup>
         &nbsp;
     </div>
+    <Teleport to="body">
+        <div class="relative z-20 pointer-events-none">
+            <div class="fixed z-10 inset-0">
+                <div class="flex items-end items-center justify-center min-h-full p-4">
+                    <ConfettiExplosion v-if="showConfetti"/>
+                </div>
+            </div>
+        </div>
+    </Teleport>
 </template>
 
 <script>
+import ConfettiExplosion from "vue-confetti-explosion";
 export default {
     name: "StarsScore",
-    props: ['stars'],
+    props: ['stars', 'isExcellentScore'],
+    components: {
+        ConfettiExplosion
+    },
     data() {
         return {
             starsShown: 0,
+            showConfetti: false,
             sizes: [
                 'h-11 w-11',
                 'h-12 w-12',
@@ -41,12 +55,19 @@ export default {
         stars: function (value) {
             if (value === null) {
                 this.starsShown = 0;
+                this.showConfetti = false;
             } else {
                 for (let i = 0; i < 3; i++) {
                     setTimeout(() => {
                         return this.starsShown++;
                     }, i*750)
                 }
+                setTimeout(() => {
+                    if (this.isExcellentScore) {
+                        this.showConfetti = true;
+                    }
+
+                }, 4*750)
             }
         },
     },

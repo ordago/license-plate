@@ -62,7 +62,7 @@
         <div class="flex justify-center mt-5 h-10">
             <GameModal :show="showResult" @close="showResult = false">
                 <template v-slot:stars>
-                    <StarsScore :stars="stars"/>
+                    <StarsScore :stars="stars" :is-excellent-score="isExcellentScore" />
                 </template>
                 <div>
                     {{ $t('messages.score') }}: {{ context.correctGuesses }}
@@ -162,6 +162,7 @@ export default {
             maxTime: 30,
             debug: false,
             stars: null,
+            isExcellentScore: false,
             timer: null,
             showResult: false,
             history: {
@@ -247,6 +248,7 @@ export default {
         restartGame() {
             this.time = 30;
             this.stars = null;
+            this.isExcellentScore = false;
             this.gameService.send('RESTART');
         },
         giveStarsScore() {
@@ -254,6 +256,9 @@ export default {
             this.$nextTick(() => {
                 if (score > 8) {
                     this.stars = 3;
+                    if (score > 9) {
+                        this.isExcellentScore = true;
+                    }
                 } else if (score > 5) {
                     this.stars = 2;
                 } else if (score > 2) {

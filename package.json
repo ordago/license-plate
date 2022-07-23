@@ -13,6 +13,7 @@
     "lodash": "^4.17.21",
     "simple-keyboard": "^3.4.128",
     "vue": "^3.2.25",
+    "vue-confetti-explosion": "^1.0.1",
     "vue-i18n": "^9.1.10",
     "xstate": "^4.32.1"
   },
