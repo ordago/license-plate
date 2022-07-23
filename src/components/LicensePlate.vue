@@ -30,7 +30,7 @@
                 <div class="w-1/2 lg:w-1/3 h-2.5" >
                     <div class="flex space-x-1">
                         <div v-for="(guess, index ) in context.history" :class="{'pr-2': (index+1) % 5 === 0}">
-                            <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess,'bg-red-500':!guess}" aria-hidden="true"></div>
+                            <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess.isCorrect,'bg-red-500':!guess.isCorrect}" aria-hidden="true"></div>
                         </div>
                     </div>
                 </div>
@@ -82,13 +82,35 @@
                         {{ $t('messages.restart') }}
                     </AppButton>
                 </div>
+        </div>
+        <div v-show="current.matches('finished')">
+            <details open class="text-gray-300 text-sm">
+                <summary>{{ $t('messages.results') }}</summary>
+                <div>
+                    <div v-for="guess in context.history" class="flex space-x-2 items-center">
+                        <div class="font-mono">
+                            {{ `${guess.plate}`.padStart(4,'0') }}
+                        </div>
+                        <div class="flex space-x-1 items-center">
+                            <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess.isCorrect,'bg-red-500':!guess.isCorrect}" aria-hidden="true"></div>
+                            <div>{{ guess.guess }}</div>
+                        </div>
+                        <div v-if="!guess.isCorrect" class="flex space-x-1 items-center">
+                            <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full bg-green-500" aria-hidden="true"></div>
+                            <div>{{ guess.solve }}</div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        </div>
+        <div>
             <template v-show="debug">
                 <div class="text-white">correctGuesses: {{ context.correctGuesses }}</div>
                 <div class="text-white">state: {{ current.value }}</div>
                 <pre class="text-white" v-show="false">context: {{ context }}</pre>
             </template>
         </div>
-        <div v-if="scoresHistory.length > 2 && history.bestScore">
+        <div v-if="scoresHistory.length > 2 && history.bestScore" class="mt-5">
             <div class="text-gray-300 text-sm" >
                 {{ $t('messages.best_score') }}:
             </div>
@@ -105,7 +127,7 @@
                 </div>
             </div>
         </div>
-        <div>
+        <div class="mt-5">
             <div class="text-gray-300 text-sm">
                 {{ $t('messages.latest_scores') }}:
             </div>

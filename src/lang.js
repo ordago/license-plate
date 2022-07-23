@@ -6,6 +6,7 @@ export const lang = {
             restart: 'Restart',
             latest_scores: 'Latest scores',
             best_score: 'Best score',
+            results: 'Results',
         }
     }
 };

@@ -1,5 +1,5 @@
-import { assign, createMachine } from 'xstate';
-import { licensePlateEngine } from './LicensePlateEngine.js';
+import {assign, createMachine} from 'xstate';
+import {licensePlateEngine} from './LicensePlateEngine.js';
 
 // This machine is completely decoupled from Vue
 export const licensePlateMachine = createMachine(
@@ -43,18 +43,16 @@ export const licensePlateMachine = createMachine(
                         always: [{ target: 'hit', cond: 'isCorrect' }, { target: 'miss' }],
                     },
                     hit: {
-                        entry: ['handleHit'],
+                        entry: ['handleHit', 'handleHistory'],
                         on: { CONTINUE: 'idle' },
                         after: {
-                            // after 1 second, transition to yellow
                             750: { target: 'idle' }
                         }
                     },
                     miss: {
-                        entry: ['handleMiss'],
+                        entry: ['handleMiss', 'handleHistory'],
                         on: { CONTINUE: 'idle' },
                         after: {
-                            // after 1 second, transition to yellow
                             1200: { target: 'idle' }
                         }
                     },
@@ -79,15 +77,21 @@ export const licensePlateMachine = createMachine(
                 context.incorrectGuesses = 0;
             },
             handleHit: (context) => {
-                context.history.push(true);
                 context.correctGuesses = context.correctGuesses + 1;
             },
             handleMiss: (context) => {
-                context.history.push(false);
                 context.incorrectGuesses = context.incorrectGuesses + 1;
                 if (context.punish && context.correctGuesses !== 0) {
                     context.correctGuesses = context.correctGuesses - 1;
                 }
+            },
+            handleHistory: (context) => {
+                context.history.push({
+                    plate: context.plate,
+                    guess: context.currentGuess,
+                    isCorrect: licensePlateEngine.check(context.plate, context.currentGuess),
+                    solve: licensePlateEngine.solve(context.plate, context.currentGuess)
+                });
             },
         },
         guards: {
