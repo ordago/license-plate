@@ -275,7 +275,9 @@ export default {
                 misses: this.context.incorrectGuesses,
                 timestamp: Date.now(),
             });
-            const bestScore = [...this.history.latestScores].sort((a, b) => -(a.hits - b.hits))[0];
+            const bestScore = [this.history.bestScore, ...this.history.latestScores]
+                .filter(Boolean)
+                .sort((a, b) => -(a.hits - b.hits))[0];
             let date = new Date(bestScore.timestamp);
             this.history.bestScore = {
                 ...bestScore,
