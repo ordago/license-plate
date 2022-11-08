@@ -8,7 +8,7 @@ import GameShell from './components/GameShell.vue'
 <template>
     <GameShell style="background-image: url(/emoji_tile_compressed.jpg)">
         <template v-slot:title>
-            <span class="text-lime-300 mr-2"> License Plate </span>
+            <span class="text-lime-300 mr-2"> {{ $t('messages.license_plate') }} </span>
 
             <LicensePlate />
         </template>
