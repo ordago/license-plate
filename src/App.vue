@@ -10,7 +10,19 @@ import GameShell from './components/GameShell.vue'
         <template v-slot:title>
             <span class="text-lime-300 mr-2"> {{ $t('messages.license_plate') }} </span>
 
-            <LicensePlate />
         </template>
+        <LicensePlate />
+        <div class="mt-5">
+            <a href="https://tichit.com">
+                <div class="flex space-x-2 items-center justify-center">
+                    <div class="text-gray-200 text-sm">
+                        {{ $t('messages.made_by') }}:
+                    </div>
+                    <div>
+                        <img class="h-10 w-auto" src="/logo.svg" alt="logo">
+                    </div>
+                </div>
+            </a>
+        </div>
     </GameShell>
 </template>
