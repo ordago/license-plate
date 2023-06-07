@@ -1,4 +1,4 @@
-import { createI18n } from 'vue-i18n/index.js'
+import { createI18n } from 'vue-i18n'
 import { lang } from './lang.js'
 export const  i18n = createI18n({
     messages: lang,
