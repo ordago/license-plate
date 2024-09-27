@@ -9,20 +9,32 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@headlessui/vue": "^1.6.7",
+    "@headlessui/vue": "^1.7.23",
     "howler": "^2.2.3",
     "lodash": "^4.17.21",
-    "simple-keyboard": "^3.4.128",
-    "vue": "^3.2.25",
+    "simple-keyboard": "^3.8.4",
+    "vue": "^3.5.9",
     "vue-confetti-explosion": "^1.0.1",
-    "vue-i18n": "^9.1.10",
+    "vue-i18n": "^9.14.1",
     "xstate": "^4.32.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.3",
-    "autoprefixer": "^10.4.7",
-    "postcss": "^8.4.14",
-    "tailwindcss": "^3.1.6",
-    "vite": "^5.0.12"
+    "@vitejs/plugin-vue": "^5.1.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "vite": "5.4.8"
+  },
+  "eslintConfig ": {
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    }
   }
 }
