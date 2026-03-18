@@ -3,7 +3,7 @@
         :is="element"
         v-bind="$attrs"
         :class="classObject"
-        class="inline-flex items-center border border-gray-300 shadow-sm leading-4 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        class="inline-flex items-center border border-gray-300 shadow-xs leading-4 font-medium rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
     >
         <slot />
     </component>
