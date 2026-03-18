@@ -144,7 +144,7 @@ import LicensePlateKeyboard from './LicensePlateKeyboard.vue'
 import AppButton from './AppButton.vue'
 import ProgressBar from './ProgressBar.vue';
 import {licensePlateMachine} from './LicensePlateMachine.js';
-import {interpret} from 'xstate';
+import {createActor} from 'xstate';
 import BadgePill from './BadgePill.vue';
 import StarsScore from './StarsScore.vue';
 import GameModal from './GameModal.vue';
@@ -176,24 +176,26 @@ export default {
                 bestScore: null,
                 timesPlayed: 0,
             },
-            // Interpret the machine and store it in data
-            gameService: interpret(licensePlateMachine),
-            // Start with the machine's initial state
-            current: licensePlateMachine.initialState,
+            // Create the actor and store it in data
+            gameService: createActor(licensePlateMachine),
+            // Will be set on created() after actor starts
+            current: null,
             // Start with the machine's initial context
             context: licensePlateMachine.context,
         };
     },
     created() {
-        // Start service on component creation
-        this.gameService
-            .onTransition((state) => {
-                // Update the current state component data property with the next state
-                this.current = state;
-                // Update the context component data property with the updated context
-                this.context = state.context;
-            })
-            .start();
+        // Start actor on component creation
+        this.gameService.subscribe((snapshot) => {
+            // Update the current snapshot component data property with the next snapshot
+            this.current = snapshot;
+            // Update the context component data property with the updated context
+            this.context = snapshot.context;
+        });
+        this.gameService.start();
+        // Populate initial snapshot after start
+        this.current = this.gameService.getSnapshot();
+        this.context = this.current.context;
     },
     computed: {
         // plateDisplay: function () {
@@ -213,8 +215,8 @@ export default {
         },
     },
     watch: {
-        'current.value': function (state) {
-            if (state === 'finished') {
+        current: function (snapshot) {
+            if (snapshot && snapshot.matches('finished')) {
                 this.saveScores();
                 if (this.history.timesPlayed % 4 === 0) {
                     this.playTimesUpAudio();
@@ -225,7 +227,7 @@ export default {
         },
         time: function (seconds) {
             if (seconds === 0) {
-                this.gameService.send('END');
+                this.gameService.send({ type: 'END' });
                 clearInterval(this.timer);
             }
         },
@@ -238,13 +240,13 @@ export default {
             }).play();
         },
         handleGuess(button) {
-            this.gameService.send('GUESS', { value: button });
+            this.gameService.send({ type: 'GUESS', value: button });
         },
         newGuess() {
-            this.gameService.send('CONTINUE');
+            this.gameService.send({ type: 'CONTINUE' });
         },
         startGame() {
-            this.gameService.send('START');
+            this.gameService.send({ type: 'START' });
             this.timer = setInterval(() => {
                 if (this.time > 0) {
                     this.time--;
@@ -255,7 +257,7 @@ export default {
             this.time = 30;
             this.stars = null;
             this.isExcellentScore = false;
-            this.gameService.send('RESTART');
+            this.gameService.send({ type: 'RESTART' });
         },
         giveStarsScore() {
             let score = this.context.correctGuesses;
