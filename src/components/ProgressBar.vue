@@ -1,7 +1,7 @@
 <template>
     <div
         :class="backgroundClassObject"
-        class="rounded w-full relative"
+        class="rounded-sm w-full relative"
         role="progressbar"
         :aria-valuenow="percent"
         aria-valuemin="0"
@@ -9,7 +9,7 @@
     >
         <div
             :class="foregroundClassObject"
-            class="rounded text-center text-white text-sm transition flex flex-col justify-center"
+            class="rounded-sm text-center text-white text-sm transition flex flex-col justify-center"
             :style="`width: ${percent}%; transition: width 1s;`"
         ></div>
         <div class="text-white absolute top-0 left-0 w-full h-full flex justify-center align-center" v-if="showText">
