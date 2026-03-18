@@ -6,25 +6,28 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "test": "vitest",
     "preview": "vite preview"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
+    "@xstate/vue": "^3.1.4",
     "howler": "^2.2.3",
     "lodash": "^4.17.21",
     "simple-keyboard": "^3.8.4",
+    "vitest": "^4.1.0",
     "vue": "^3.5.9",
     "vue-confetti-explosion": "^1.0.1",
-    "vue-i18n": "^9.14.1",
-    "xstate": "^4.32.1"
+    "vue-i18n": "^11.3.0",
+    "xstate": "^5.28.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
     "@vitejs/plugin-vue": "^5.1.4",
-    "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
     "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.13",
-    "vite": "5.4.8"
+    "tailwindcss": "^4.2.1",
+    "vite": "7.3.1"
   },
   "eslintConfig ": {
     "env": {
