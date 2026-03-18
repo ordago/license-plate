@@ -30,7 +30,7 @@
                 <div class="w-1/2 lg:w-1/3 h-2.5" >
                     <div class="flex flex-wrap space-x-1">
                         <div v-for="(guess, index ) in context.history" :class="{'pr-2': (index+1) % 5 === 0}">
-                            <div  class="shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess.isCorrect,'bg-red-500':!guess.isCorrect}" aria-hidden="true"></div>
+                            <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess.isCorrect,'bg-red-500':!guess.isCorrect}" aria-hidden="true"></div>
                         </div>
                     </div>
                 </div>
@@ -84,11 +84,11 @@
                             {{ `${guess.plate}`.padStart(4,'0') }}
                         </div>
                         <div class="flex space-x-1 items-center">
-                            <div  class="shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess.isCorrect,'bg-red-500':!guess.isCorrect}" aria-hidden="true"></div>
+                            <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full" :class="{'bg-green-500':guess.isCorrect,'bg-red-500':!guess.isCorrect}" aria-hidden="true"></div>
                             <div>{{ guess.guess }}</div>
                         </div>
                         <div v-if="!guess.isCorrect" class="flex space-x-1 items-center">
-                            <div  class="shrink-0 w-2.5 h-2.5 rounded-full bg-green-500" aria-hidden="true"></div>
+                            <div  class="flex-shrink-0 w-2.5 h-2.5 rounded-full bg-green-500" aria-hidden="true"></div>
                             <div>{{ guess.solve }}</div>
                         </div>
                     </div>
@@ -144,7 +144,7 @@ import LicensePlateKeyboard from './LicensePlateKeyboard.vue'
 import AppButton from './AppButton.vue'
 import ProgressBar from './ProgressBar.vue';
 import {licensePlateMachine} from './LicensePlateMachine.js';
-import {interpret} from 'xstate';
+import {createActor} from 'xstate';
 import BadgePill from './BadgePill.vue';
 import StarsScore from './StarsScore.vue';
 import GameModal from './GameModal.vue';
@@ -162,6 +162,9 @@ export default {
         GameModal,
     },
     data() {
+        const gameService = createActor(licensePlateMachine);
+        const initialSnapshot = gameService.getSnapshot();
+
         return {
             keyboard: null,
             time: 30,
@@ -171,29 +174,29 @@ export default {
             isExcellentScore: false,
             timer: null,
             showResult: false,
+            subscription: null,
             history: {
                 latestScores: [],
                 bestScore: null,
                 timesPlayed: 0,
             },
             // Interpret the machine and store it in data
-            gameService: interpret(licensePlateMachine),
+            gameService,
             // Start with the machine's initial state
-            current: licensePlateMachine.initialState,
+            current: initialSnapshot,
             // Start with the machine's initial context
-            context: licensePlateMachine.context,
+            context: initialSnapshot.context,
         };
     },
     created() {
         // Start service on component creation
-        this.gameService
-            .onTransition((state) => {
-                // Update the current state component data property with the next state
-                this.current = state;
-                // Update the context component data property with the updated context
-                this.context = state.context;
-            })
-            .start();
+        this.subscription = this.gameService.subscribe((state) => {
+            // Update the current state component data property with the next state
+            this.current = state;
+            // Update the context component data property with the updated context
+            this.context = state.context;
+        });
+        this.gameService.start();
     },
     computed: {
         // plateDisplay: function () {
@@ -225,7 +228,7 @@ export default {
         },
         time: function (seconds) {
             if (seconds === 0) {
-                this.gameService.send('END');
+                this.gameService.send({ type: 'END' });
                 clearInterval(this.timer);
             }
         },
@@ -238,13 +241,13 @@ export default {
             }).play();
         },
         handleGuess(button) {
-            this.gameService.send('GUESS', { value: button });
+            this.gameService.send({ type: 'GUESS', value: button });
         },
         newGuess() {
-            this.gameService.send('CONTINUE');
+            this.gameService.send({ type: 'CONTINUE' });
         },
         startGame() {
-            this.gameService.send('START');
+            this.gameService.send({ type: 'START' });
             this.timer = setInterval(() => {
                 if (this.time > 0) {
                     this.time--;
@@ -255,7 +258,7 @@ export default {
             this.time = 30;
             this.stars = null;
             this.isExcellentScore = false;
-            this.gameService.send('RESTART');
+            this.gameService.send({ type: 'RESTART' });
         },
         giveStarsScore() {
             let score = this.context.correctGuesses;
@@ -305,6 +308,13 @@ export default {
             }
             this.history = history;
         }
+    },
+    beforeUnmount() {
+        clearInterval(this.timer);
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
+        this.gameService.stop();
     }
 };
 </script>

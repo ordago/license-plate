@@ -10,13 +10,14 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
+    "@xstate/vue": "^3.1.4",
     "howler": "^2.2.3",
     "lodash": "^4.17.21",
     "simple-keyboard": "^3.8.4",
     "vue": "^3.5.9",
     "vue-confetti-explosion": "^1.0.1",
     "vue-i18n": "^11.3.0",
-    "xstate": "^4.32.1"
+    "xstate": "^5.28.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
