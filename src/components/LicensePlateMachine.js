@@ -1,8 +1,50 @@
-import {assign, createMachine} from 'xstate';
+import {assign, setup} from 'xstate';
 import {licensePlateEngine} from './LicensePlateEngine.js';
 
 // This machine is completely decoupled from Vue
-export const licensePlateMachine = createMachine(
+export const licensePlateMachine = setup({
+    actions: {
+        setNewNumberPlate: assign({
+            plate: () => licensePlateEngine.randomNumber(),
+            currentGuess: null
+        }),
+        setNewGame: assign({
+            history: [],
+            currentGuess: null,
+            correctGuesses: 0,
+            incorrectGuesses: 0
+        }),
+        handleHit: assign({
+            correctGuesses: ({context}) => context.correctGuesses + 1
+        }),
+        handleMiss: assign({
+            incorrectGuesses: ({context}) => context.incorrectGuesses + 1,
+            correctGuesses: ({context}) => {
+                if (context.punish && context.correctGuesses !== 0) {
+                    return context.correctGuesses - 1;
+                }
+                return context.correctGuesses;
+            }
+        }),
+        handleHistory: assign({
+            history: ({context}) => {
+                const newHistory = [...context.history];
+                newHistory.push({
+                    plate: context.plate,
+                    guess: context.currentGuess,
+                    isCorrect: licensePlateEngine.check(context.plate, context.currentGuess),
+                    solve: licensePlateEngine.solve(context.plate, context.currentGuess)
+                });
+                return newHistory;
+            }
+        }),
+    },
+    guards: {
+        isCorrect: ({context}) => {
+            return licensePlateEngine.check(context.plate, context.currentGuess);
+        },
+    },
+}).createMachine(
     {
         id: 'license-plate',
         context: {
@@ -31,16 +73,15 @@ export const licensePlateMachine = createMachine(
                                 target: 'guessing',
                                 // transition actions
                                 actions: assign({
-                                    currentGuess: (context, event) => {
+                                    currentGuess: ({event}) => {
                                         return event.value;
                                     },
-                                    message: 'currentGuess changed',
                                 }),
                             },
                         },
                     },
                     guessing: {
-                        always: [{ target: 'hit', cond: 'isCorrect' }, { target: 'miss' }],
+                        always: [{ target: 'hit', guard: 'isCorrect' }, { target: 'miss' }],
                     },
                     hit: {
                         entry: ['handleHit', 'handleHistory'],
@@ -60,43 +101,6 @@ export const licensePlateMachine = createMachine(
             },
             finished: {
                 on: { RESTART: 'ready' },
-            },
-        },
-    },
-    {
-        actions: {
-            // action implementations
-            setNewNumberPlate: (context) => {
-                context.plate = licensePlateEngine.randomNumber();
-                context.currentGuess = null;
-            },
-            setNewGame: (context) => {
-                context.history = [];
-                context.currentGuess = null;
-                context.correctGuesses = 0;
-                context.incorrectGuesses = 0;
-            },
-            handleHit: (context) => {
-                context.correctGuesses = context.correctGuesses + 1;
-            },
-            handleMiss: (context) => {
-                context.incorrectGuesses = context.incorrectGuesses + 1;
-                if (context.punish && context.correctGuesses !== 0) {
-                    context.correctGuesses = context.correctGuesses - 1;
-                }
-            },
-            handleHistory: (context) => {
-                context.history.push({
-                    plate: context.plate,
-                    guess: context.currentGuess,
-                    isCorrect: licensePlateEngine.check(context.plate, context.currentGuess),
-                    solve: licensePlateEngine.solve(context.plate, context.currentGuess)
-                });
-            },
-        },
-        guards: {
-            isCorrect: (context, _) => {
-                return licensePlateEngine.check(context.plate, context.currentGuess);
             },
         },
     }
